@@ -9,6 +9,9 @@ class GraphicsPipeline
 public:
 	void CreateGraphicsPipeline(VkDevice* logical_device, VkExtent2D* extent, VkFormat* format);
 	void Cleanup();
+
+    VkRenderPass* GetRenderPass() { return &render_pass_; }
+    VkPipeline* GetGraphicsPipeline() { return &graphics_pipeline_; }
 private : 
 
     VkShaderModule CreateShaderModule(const std::vector<char>& code);

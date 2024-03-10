@@ -1,4 +1,5 @@
 #include <graphics_pipeline.h>
+#include <frame_buffers.h>
 
 #include <iostream>
 #include <vector>
@@ -117,6 +118,16 @@ private:
 #pragma region ImageViews
 	void CreateImageViews();
 #pragma endregion ImageViews
+
+#pragma region CommandPools
+	void CreateCommandPool();
+	void CreateCommandBuffer();
+	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+#pragma endregion CommandPools
+
+#pragma region Frame
+	void DrawFrame();
+#pragma region Frame
 #pragma endregion Functions
 
 #pragma region Members
@@ -137,7 +148,11 @@ private:
 	VkExtent2D swap_chain_extent_;
 	std::vector<VkImageView> swap_chain_images_views_;
 
+	VkCommandPool command_pool_;
+	VkCommandBuffer command_buffer_;
+
 	GraphicsPipeline graphics_pipeline_;
+	FrameBuffers frame_buffers_;
 
 	const std::vector<const char*> kValidationLayers_ = {
 		"VK_LAYER_KHRONOS_validation"
