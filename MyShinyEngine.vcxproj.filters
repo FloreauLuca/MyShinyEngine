@@ -33,4 +33,12 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Main\Data\shader.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="Main\Data\shader.vert">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+  </ItemGroup>
 </Project>

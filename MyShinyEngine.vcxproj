@@ -27,6 +27,10 @@
     <ClInclude Include="Main\graphics_engine.h" />
     <ClInclude Include="Main\graphics_pipeline.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Main\Data\shader.frag" />
+    <None Include="Main\Data\shader.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

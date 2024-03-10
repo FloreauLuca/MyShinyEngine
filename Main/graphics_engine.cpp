@@ -48,7 +48,7 @@ void GraphicsEngine::InitVulkan()
 	CreateImageViews(); 
 
 	graphics_pipeline_ = GraphicsPipeline();
-	graphics_pipeline_.CreateGraphicsPipeline();
+	graphics_pipeline_.CreateGraphicsPipeline(&logical_device_);
 }
 
 void GraphicsEngine::MainLoop()
