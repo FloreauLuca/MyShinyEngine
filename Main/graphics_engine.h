@@ -125,6 +125,10 @@ private:
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 #pragma endregion CommandPools
 
+#pragma region SyncObjects
+	void CreateSyncObjects();
+#pragma endregion SyncObjects
+
 #pragma region Frame
 	void DrawFrame();
 #pragma region Frame
@@ -133,6 +137,7 @@ private:
 #pragma region Members
 	const uint32_t kWidth = 800;
 	const uint32_t kHeight = 600;
+	const int kMaxFramesnFlight = 2;
 
 	GLFWwindow* window_;
 	VkInstance instance_;
@@ -149,10 +154,17 @@ private:
 	std::vector<VkImageView> swap_chain_images_views_;
 
 	VkCommandPool command_pool_;
-	VkCommandBuffer command_buffer_;
+	std::vector<VkCommandBuffer> command_buffers_;
 
 	GraphicsPipeline graphics_pipeline_;
 	FrameBuffers frame_buffers_;
+
+	std::vector<VkSemaphore> image_available_semaphore_;
+	std::vector<VkSemaphore> render_finished_semaphore_;
+	std::vector<VkFence> in_flight_fence_;
+
+	uint32_t current_frame_ = 0;
+
 
 	const std::vector<const char*> kValidationLayers_ = {
 		"VK_LAYER_KHRONOS_validation"

@@ -55,6 +55,8 @@ void GraphicsEngine::InitVulkan()
 
 	CreateCommandPool();
 	CreateCommandBuffer();
+
+	CreateSyncObjects();
 }
 
 void GraphicsEngine::MainLoop()
@@ -63,10 +65,19 @@ void GraphicsEngine::MainLoop()
 		glfwPollEvents();
 		DrawFrame();
 	}
+
+	vkDeviceWaitIdle(logical_device_);
+
 }
 
 void GraphicsEngine::Cleanup()
 {
+	for (size_t i = 0; i < kMaxFramesnFlight; i++) {
+		vkDestroySemaphore(logical_device_, render_finished_semaphore_[i], nullptr);
+		vkDestroySemaphore(logical_device_, image_available_semaphore_[i], nullptr);
+		vkDestroyFence(logical_device_, in_flight_fence_[i], nullptr);
+	}
+
 	frame_buffers_.CleanUp();
 
 	vkDestroyCommandPool(logical_device_, command_pool_, nullptr);
@@ -531,13 +542,15 @@ void GraphicsEngine::CreateCommandPool()
 
 void GraphicsEngine::CreateCommandBuffer()
 {
+	command_buffers_.resize(kMaxFramesnFlight);
+
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = command_pool_;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
+	allocInfo.commandBufferCount = (uint32_t)command_buffers_.size();
 
-	if (vkAllocateCommandBuffers(logical_device_, &allocInfo, &command_buffer_) != VK_SUCCESS) {
+	if (vkAllocateCommandBuffers(logical_device_, &allocInfo, command_buffers_.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 }
@@ -593,9 +606,86 @@ void GraphicsEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 }
 #pragma endregion ImageViews
 
+#pragma region SyncObjects
+void GraphicsEngine::CreateSyncObjects()
+{
+	image_available_semaphore_.resize(kMaxFramesnFlight);
+	render_finished_semaphore_.resize(kMaxFramesnFlight);
+	in_flight_fence_.resize(kMaxFramesnFlight);
+
+	VkSemaphoreCreateInfo semaphoreInfo{};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo{};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	for (size_t i = 0; i < kMaxFramesnFlight; i++) {
+		if (vkCreateSemaphore(logical_device_, &semaphoreInfo, nullptr, &image_available_semaphore_[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(logical_device_, &semaphoreInfo, nullptr, &render_finished_semaphore_[i]) != VK_SUCCESS ||
+			vkCreateFence(logical_device_, &fenceInfo, nullptr, &in_flight_fence_[i]) != VK_SUCCESS) {
+
+			throw std::runtime_error("failed to create synchronization objects for a frame!");
+		}
+	}
+}
+#pragma endregion SyncObjects
+
 #pragma region Frame
+// TODO
+// Wait for the previous frame to finish
+// Acquire an image from the swap chain
+// Record a command buffer which draws the scene onto that image
+// Submit the recorded command buffer
+// Present the swap chain image
 void GraphicsEngine::DrawFrame()
 {
+	vkWaitForFences(logical_device_, 1, &in_flight_fence_[current_frame_], VK_TRUE, UINT64_MAX);
+	vkResetFences(logical_device_, 1, &in_flight_fence_[current_frame_]);
+
+	uint32_t imageIndex;
+	vkAcquireNextImageKHR(logical_device_, swap_chain_, UINT64_MAX, image_available_semaphore_[current_frame_], VK_NULL_HANDLE, &imageIndex);
+
+	vkResetCommandBuffer(command_buffers_[current_frame_], 0);
+
+	RecordCommandBuffer(command_buffers_[current_frame_], imageIndex);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { image_available_semaphore_[current_frame_] };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &command_buffers_[current_frame_];
+
+	
+	VkSemaphore signalSemaphores[] = { render_finished_semaphore_[current_frame_] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	if (vkQueueSubmit(graphics_queue_, 1, &submitInfo, in_flight_fence_[current_frame_]) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { swap_chain_ };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pResults = nullptr; // Optional
+
+	vkQueuePresentKHR(present_queue_, &presentInfo);
+
+	current_frame_ = (current_frame_ + 1) % kMaxFramesnFlight;
 }
 #pragma endregion Frame
 #pragma endregion Functions
