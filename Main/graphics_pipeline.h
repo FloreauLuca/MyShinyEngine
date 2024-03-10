@@ -7,9 +7,15 @@
 class GraphicsPipeline
 {
 public:
-	void CreateGraphicsPipeline(VkDevice* logical_device);
-    VkShaderModule CreateShaderModule(const std::vector<char>& code);
+	void CreateGraphicsPipeline(VkDevice* logical_device, VkExtent2D* extent, VkFormat* format);
+	void Cleanup();
 private : 
+
+    VkShaderModule CreateShaderModule(const std::vector<char>& code);
+
+#pragma region RenderPass
+    void CreateRenderPass();
+#pragma endregion RenderPass
 
     static std::vector<char> ReadFile(const std::string& filename) {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -30,4 +36,13 @@ private :
     }
 
     VkDevice* logical_device_;
+    VkExtent2D* extent_;
+    VkFormat* format_;
+
+    VkPipelineLayout pipeline_layout_;
+    VkShaderModule vert_shader_module_;
+    VkShaderModule frag_shader_module_;
+    VkRenderPass render_pass_;
+    VkPipeline graphics_pipeline_;
+
 };

@@ -45,10 +45,10 @@ void GraphicsEngine::InitVulkan()
 	PickPhysicalDevice();
 	CreateLogicalDevice();
 	CreateSwapChain();
-	CreateImageViews(); 
+	CreateImageViews();
 
 	graphics_pipeline_ = GraphicsPipeline();
-	graphics_pipeline_.CreateGraphicsPipeline(&logical_device_);
+	graphics_pipeline_.CreateGraphicsPipeline(&logical_device_, &swap_chain_extent_, &swap_chain_image_format_);
 }
 
 void GraphicsEngine::MainLoop()
@@ -61,6 +61,8 @@ void GraphicsEngine::MainLoop()
 
 void GraphicsEngine::Cleanup()
 {
+	graphics_pipeline_.Cleanup();
+
 	for (auto imageView : swap_chain_images_views_) {
 		vkDestroyImageView(logical_device_, imageView, nullptr);
 	}
