@@ -149,13 +149,19 @@ private:
 	const int kMaxFramesnFlight = 2;
 
 	GLFWwindow* window_;
+
 	VkInstance instance_;
+
 	VkDebugUtilsMessengerEXT debug_messenger_;
+
 	VkPhysicalDevice physical_device_;
+
 	VkDevice logical_device_;
 	VkQueue graphics_queue_;
-	VkSurfaceKHR surface_;
 	VkQueue present_queue_;
+
+	VkSurfaceKHR surface_;
+
 	VkSwapchainKHR swap_chain_;
 	std::vector<VkImage> swap_chain_images_;
 	VkFormat swap_chain_image_format_;
@@ -166,6 +172,7 @@ private:
 	std::vector<VkCommandBuffer> command_buffers_;
 
 	GraphicsPipeline graphics_pipeline_;
+
 	FrameBuffers frame_buffers_;
 
 	std::vector<VkSemaphore> image_available_semaphore_;

@@ -39,11 +39,17 @@ void GraphicsEngine::InitWindow()
 void GraphicsEngine::InitVulkan()
 {
 	CreateInstance();
+
 	SetupDebugMessenger();
+	
 	CreateSurface();
+	
 	PickPhysicalDevice();
+	
 	CreateLogicalDevice();
+	
 	CreateSwapChain();
+	
 	CreateImageViews();
 
 	graphics_pipeline_ = GraphicsPipeline();
@@ -66,7 +72,6 @@ void GraphicsEngine::MainLoop()
 	}
 
 	vkDeviceWaitIdle(logical_device_);
-
 }
 
 void GraphicsEngine::Cleanup()
@@ -90,6 +95,7 @@ void GraphicsEngine::Cleanup()
 	}
 
 	vkDestroySurfaceKHR(instance_, surface_, nullptr);
+
 	vkDestroyInstance(instance_, nullptr);
 
 	glfwDestroyWindow(window_);
