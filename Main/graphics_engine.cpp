@@ -31,10 +31,9 @@ void GraphicsEngine::InitWindow()
 	// Disable opengl client
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-	// TEMP Disable resizable
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
 	window_ = glfwCreateWindow(kWidth, kHeight, "MyShinyEngine", nullptr, nullptr);
+	glfwSetWindowUserPointer(window_, this);
+	glfwSetFramebufferSizeCallback(window_, FramebufferResizeCallback);
 }
 
 void GraphicsEngine::InitVulkan()
@@ -72,23 +71,17 @@ void GraphicsEngine::MainLoop()
 
 void GraphicsEngine::Cleanup()
 {
+	CleanupSwapChain();
+
 	for (size_t i = 0; i < kMaxFramesnFlight; i++) {
 		vkDestroySemaphore(logical_device_, render_finished_semaphore_[i], nullptr);
 		vkDestroySemaphore(logical_device_, image_available_semaphore_[i], nullptr);
 		vkDestroyFence(logical_device_, in_flight_fence_[i], nullptr);
 	}
 
-	frame_buffers_.CleanUp();
-
 	vkDestroyCommandPool(logical_device_, command_pool_, nullptr);
 
 	graphics_pipeline_.Cleanup();
-
-	for (auto imageView : swap_chain_images_views_) {
-		vkDestroyImageView(logical_device_, imageView, nullptr);
-	}
-
-	vkDestroySwapchainKHR(logical_device_, swap_chain_, nullptr);
 
 	vkDestroyDevice(logical_device_, nullptr);
 
@@ -495,6 +488,33 @@ VkExtent2D GraphicsEngine::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capa
 		return actualExtent;
 	}
 }
+
+void GraphicsEngine::CleanupSwapChain() {
+	frame_buffers_.CleanUp();
+
+	for (size_t i = 0; i < swap_chain_images_views_.size(); i++) {
+		vkDestroyImageView(logical_device_, swap_chain_images_views_[i], nullptr);
+	}
+
+	vkDestroySwapchainKHR(logical_device_, swap_chain_, nullptr);
+}
+
+void GraphicsEngine::RecreateSwapChain() {
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(window_, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(window_, &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(logical_device_);
+
+	CleanupSwapChain();
+
+	CreateSwapChain();
+	CreateImageViews();
+	frame_buffers_.CreateFrameBuffers(&logical_device_, graphics_pipeline_.GetRenderPass(), &swap_chain_images_views_, &swap_chain_extent_, &swap_chain_image_format_);
+}
 #pragma endregion SwapChain
 
 #pragma region ImageViews
@@ -641,10 +661,21 @@ void GraphicsEngine::CreateSyncObjects()
 void GraphicsEngine::DrawFrame()
 {
 	vkWaitForFences(logical_device_, 1, &in_flight_fence_[current_frame_], VK_TRUE, UINT64_MAX);
-	vkResetFences(logical_device_, 1, &in_flight_fence_[current_frame_]);
 
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(logical_device_, swap_chain_, UINT64_MAX, image_available_semaphore_[current_frame_], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(logical_device_, swap_chain_, UINT64_MAX, image_available_semaphore_[current_frame_], VK_NULL_HANDLE, &imageIndex);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || framebuffer_resized_) {
+		framebuffer_resized_ = false;
+		RecreateSwapChain();
+		return;
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		throw std::runtime_error("failed to acquire swap chain image!");
+	}
+
+	// Only reset the fence if we are submitting work
+	vkResetFences(logical_device_, 1, &in_flight_fence_[current_frame_]);
 
 	vkResetCommandBuffer(command_buffers_[current_frame_], 0);
 
@@ -683,7 +714,15 @@ void GraphicsEngine::DrawFrame()
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
-	vkQueuePresentKHR(present_queue_, &presentInfo);
+	result = vkQueuePresentKHR(present_queue_, &presentInfo);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebuffer_resized_) {
+		framebuffer_resized_ = false;
+		RecreateSwapChain();
+	}
+	else if (result != VK_SUCCESS) {
+		throw std::runtime_error("failed to present swap chain image!");
+	}
 
 	current_frame_ = (current_frame_ + 1) % kMaxFramesnFlight;
 }

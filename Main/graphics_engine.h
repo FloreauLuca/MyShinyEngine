@@ -25,6 +25,11 @@ private:
 	void MainLoop();
 
 	void Cleanup();
+
+	static void FramebufferResizeCallback(GLFWwindow* window, int width, int height) {
+		auto app = reinterpret_cast<GraphicsEngine*>(glfwGetWindowUserPointer(window));
+		app->framebuffer_resized_ = true;
+	}
 #pragma endregion Main_loop
 
 #pragma region Instance
@@ -113,6 +118,10 @@ private:
 	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 
 	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+	void CleanupSwapChain();
+
+	void RecreateSwapChain();
 #pragma endregion SwapChain
 
 #pragma region ImageViews
@@ -162,6 +171,8 @@ private:
 	std::vector<VkSemaphore> image_available_semaphore_;
 	std::vector<VkSemaphore> render_finished_semaphore_;
 	std::vector<VkFence> in_flight_fence_;
+
+	bool framebuffer_resized_ = false;
 
 	uint32_t current_frame_ = 0;
 
