@@ -1,8 +1,7 @@
-namespace shiny
-{
-
 #include <vulkan/vulkan.h>
 
+namespace shiny
+{
 class VulkanDevice
 {
 public:
