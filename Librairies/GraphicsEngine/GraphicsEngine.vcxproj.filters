@@ -44,9 +44,6 @@
     <ClInclude Include="Header\validation_layers.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Header\vulkan_debug.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="Header\vulkan_device.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
@@ -80,9 +77,6 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\validation_layers.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\vulkan_debug.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\vulkan_device.cpp">

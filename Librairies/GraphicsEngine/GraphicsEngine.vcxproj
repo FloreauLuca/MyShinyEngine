@@ -164,7 +164,6 @@
     <ClInclude Include="Header\swap_chain.h" />
     <ClInclude Include="Header\swap_chain_support_details.h" />
     <ClInclude Include="Header\validation_layers.h" />
-    <ClInclude Include="Header\vulkan_debug.h" />
     <ClInclude Include="Header\vulkan_device.h" />
     <ClInclude Include="Header\window.h" />
   </ItemGroup>
@@ -176,7 +175,6 @@
     <ClCompile Include="Source\surface.cpp" />
     <ClCompile Include="Source\swap_chain.cpp" />
     <ClCompile Include="Source\validation_layers.cpp" />
-    <ClCompile Include="Source\vulkan_debug.cpp" />
     <ClCompile Include="Source\vulkan_device.cpp" />
     <ClCompile Include="Source\window.cpp" />
   </ItemGroup>
