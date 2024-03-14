@@ -7,9 +7,9 @@
 
 namespace shiny
 {
-Instance::Instance()
+void Instance::InitInstance()
 {
-  if (ValidationLayers::CheckValidationLayerSupport()) {
+  if (!ValidationLayers::CheckValidationLayerSupport()) {
     throw std::runtime_error("validation layers requested, but not available!");
   }
 
@@ -32,7 +32,8 @@ Instance::Instance()
   createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
   createInfo.ppEnabledExtensionNames = extensions.data();
 
-  ValidationLayers::AddValidationLayer(&createInfo);
+  VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+  ValidationLayers::AddValidationLayer(createInfo, debugCreateInfo);
 
   if (vkCreateInstance(&createInfo, nullptr, &instance_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create instance!");
@@ -57,7 +58,7 @@ std::vector<const char*> Instance::GetRequiredExtensions() {
 
     std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-    ValidationLayers::AddValidationExtensions(&extensions);
+    ValidationLayers::AddValidationExtensions(extensions);
 
     return extensions;
 }

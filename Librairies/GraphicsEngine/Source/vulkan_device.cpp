@@ -10,7 +10,7 @@
 namespace shiny
 {
 #pragma region LogicalDevice
-	VulkanDevice::VulkanDevice(VkInstance* instance, VkSurfaceKHR* surface)
+	void VulkanDevice::InitVulkanDevice(VkInstance* instance, VkSurfaceKHR* surface)
 	{
 		instance_ = instance;
 		surface_ = surface;
@@ -60,13 +60,13 @@ namespace shiny
 
 	bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice device) {
 
-		bool queueFamilyComplete = QueueFamilyIndices::FindQueueFamilies(&device, surface_).IsComplete();
+		bool queueFamilyComplete = QueueFamilyIndices::FindQueueFamilies(device, *surface_).IsComplete();
 
 		bool extensionsSupported = CheckDeviceExtensionSupport(device);
 
 		bool swapChainAdequate = false;
 		if (extensionsSupported) {
-			bool swapChainAdequate = SwapChainSupportDetails::QuerySwapChainSupport(&device, surface_).IsComplete();
+			swapChainAdequate = SwapChainSupportDetails::QuerySwapChainSupport(device, *surface_).IsComplete();
 		}
 
 		return queueFamilyComplete && extensionsSupported && swapChainAdequate;
@@ -91,7 +91,7 @@ namespace shiny
 
 #pragma region LogicalDevice
 	void VulkanDevice::CreateLogicalDevice() {
-		QueueFamilyIndices indices = QueueFamilyIndices::FindQueueFamilies(&physical_device_, surface_);
+		QueueFamilyIndices indices = QueueFamilyIndices::FindQueueFamilies(physical_device_, *surface_);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
@@ -118,7 +118,7 @@ namespace shiny
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(kDeviceExtensions_.size());
 		createInfo.ppEnabledExtensionNames = kDeviceExtensions_.data();
 
-		ValidationLayers::AddValidationLayer(&createInfo);
+		ValidationLayers::AddValidationLayer(createInfo);
 
 		if (vkCreateDevice(physical_device_, &createInfo, nullptr, &logical_device_) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create logical device!");

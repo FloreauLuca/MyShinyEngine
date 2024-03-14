@@ -7,8 +7,11 @@ namespace shiny
 class Surface
 {
 public:
-	Surface(VkInstance* instance, GLFWwindow* window);
-	void Destroy(VkInstance* instance);
+	Surface() {}
+	void InitSurface(VkInstance& instance, GLFWwindow* window);
+	void Destroy(VkInstance& instance);
+
+	VkSurfaceKHR& GetSurface() { return surface_; }
 private:
 	VkSurfaceKHR surface_ = nullptr;
 };

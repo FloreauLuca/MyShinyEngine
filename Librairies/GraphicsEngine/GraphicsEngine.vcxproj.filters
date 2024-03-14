@@ -23,9 +23,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header\frame_buffers.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="Header\graphics_engine.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
@@ -56,11 +53,14 @@
     <ClInclude Include="Header\window.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Header\queue_family_indices.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\swap_chain_support_details.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\frame_buffers.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="Source\graphics_engine.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>

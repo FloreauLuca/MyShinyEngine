@@ -5,68 +5,12 @@
 
 namespace shiny
 {
-
-	SwapChainSupportDetails SwapChainSupportDetails::QuerySwapChainSupport(VkPhysicalDevice* device, VkSurfaceKHR* surface) {
-		SwapChainSupportDetails details;
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*device, *surface, &details.capabilities);
-
-		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(*device, *surface, &formatCount, nullptr);
-
-		if (formatCount != 0) {
-			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(*device, *surface, &formatCount, details.formats.data());
-		}
-
-		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(*device, *surface, &presentModeCount, nullptr);
-
-		if (presentModeCount != 0) {
-			details.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(*device, *surface, &presentModeCount, details.presentModes.data());
-		}
-
-		return details;
-	}
-
-	QueueFamilyIndices QueueFamilyIndices::FindQueueFamilies(VkPhysicalDevice* device, VkSurfaceKHR* surface) {
-		QueueFamilyIndices indices;
-
-		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(*device, &queueFamilyCount, nullptr);
-
-		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(*device, &queueFamilyCount, queueFamilies.data());
-
-		int i = 0;
-		for (const auto& queueFamily : queueFamilies) {
-			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-				indices.graphicsFamily = i;
-			}
-
-			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(*device, i, *surface, &presentSupport);
-
-			if (presentSupport) {
-				indices.presentFamily = i;
-			}
-
-			if (indices.IsComplete()) {
-				break;
-			}
-
-			i++;
-		}
-
-		return indices;
-	}
-
 	void SwapChain::Destroy() {
 		CleanupSwapChain();
 	}
 
 	void SwapChain::CreateSwapChain() {
-		SwapChainSupportDetails swapChainSupport = SwapChainSupportDetails::QuerySwapChainSupport(physical_device_, surface_);
+		SwapChainSupportDetails swapChainSupport = SwapChainSupportDetails::QuerySwapChainSupport(*physical_device_, *surface_);
 
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 		VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -87,7 +31,7 @@ namespace shiny
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // VK_IMAGE_USAGE_TRANSFER_DST_BIT 
 
-		QueueFamilyIndices indices = QueueFamilyIndices::FindQueueFamilies(physical_device_, surface_);
+		QueueFamilyIndices indices = QueueFamilyIndices::FindQueueFamilies(*physical_device_, *surface_);
 		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		if (indices.graphicsFamily != indices.presentFamily) {
@@ -164,7 +108,6 @@ namespace shiny
 	}
 
 	void SwapChain::CleanupSwapChain() {
-
 		for (auto framebuffer : swap_chain_framebuffers_) {
 			vkDestroyFramebuffer(*logical_device_, framebuffer, nullptr);
 		}
@@ -190,11 +133,12 @@ namespace shiny
 
 		CreateSwapChain();
 		CreateImageViews();
-		CreateFrameBuffers();
+		CreateFrameBuffers(*render_pass_);
 	}
 
-	void SwapChain::CreateFrameBuffers()
+	void SwapChain::CreateFrameBuffers(VkRenderPass& render_pass)
 	{
+		render_pass_ = &render_pass;
 		swap_chain_framebuffers_.resize(swap_chain_images_views_.size());
 
 		for (size_t i = 0; i < swap_chain_images_views_.size(); i++) {
@@ -204,7 +148,7 @@ namespace shiny
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = *render_pass_;
+			framebufferInfo.renderPass = render_pass;
 			framebufferInfo.attachmentCount = 1;
 			framebufferInfo.pAttachments = attachments;
 			framebufferInfo.width = swap_chain_extent_.width;

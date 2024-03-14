@@ -5,18 +5,19 @@
 
 namespace shiny
 {
-	CommandBuffer::CommandBuffer(
+	void CommandBuffer::InitCommandBuffer(
 		VkPhysicalDevice* physical_device, VkSurfaceKHR* surface,
 		VkDevice* logical_device, VkRenderPass* render_pass,
-		SwapChain* swap_chain, VkPipeline* pipeline) :
-		physical_device_(physical_device),
-		surface_(surface),
-		logical_device_(logical_device),
-		render_pass_(render_pass),
-		swap_chain_(swap_chain),
-		pipeline_(pipeline),
-		swap_chain_extent_(swap_chain_->GetExtent())
+		SwapChain* swap_chain, VkPipeline* pipeline) 
 	{
+		physical_device_ = physical_device;
+		surface_ = surface;
+		logical_device_ = logical_device;
+		render_pass_ = render_pass;
+		swap_chain_ = swap_chain;
+		pipeline_ = pipeline;
+		swap_chain_extent_ = &swap_chain_->GetExtent();
+
 		CreateCommandPool();
 		CreateCommandBuffer();
 	}
@@ -27,7 +28,7 @@ namespace shiny
 
 	void CommandBuffer::CreateCommandPool()
 	{
-		QueueFamilyIndices queueFamilyIndices = QueueFamilyIndices::FindQueueFamilies(physical_device_, surface_);
+		QueueFamilyIndices queueFamilyIndices = QueueFamilyIndices::FindQueueFamilies(*physical_device_, *surface_);
 
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

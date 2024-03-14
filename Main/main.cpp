@@ -6,7 +6,7 @@
 
 int main()
 {
-	GraphicsEngine app;
+	shiny::GraphicsEngine app;
 
 	try
 	{

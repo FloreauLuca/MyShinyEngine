@@ -2,7 +2,7 @@
 
 namespace shiny
 {
-Window::Window(const uint32_t width, const uint32_t height)
+void Window::InitWindow(const uint32_t width, const uint32_t height)
 {
 	glfwInit();
 

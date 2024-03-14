@@ -10,12 +10,13 @@ namespace shiny
 class Instance
 {
 public:
-	Instance();
+	void InitInstance();
 	void Destroy();
+
+	VkInstance& GetInstance() { return instance_; }
 private:
 	static std::vector<const char*> GetRequiredExtensions();
 
 	VkInstance instance_ = nullptr;
-	ValidationLayers validationLayers_ = ValidationLayers();
 };
 }

@@ -9,20 +9,20 @@ namespace shiny
 class ValidationLayers
 {
 public:
-  static void AddValidationLayer(VkInstanceCreateInfo* createInfo);
-  static void AddValidationLayer(VkDeviceCreateInfo* createInfo);
+  static void AddValidationLayer(VkInstanceCreateInfo& createInfo, VkDebugUtilsMessengerCreateInfoEXT& debugCreateInfo);
+  static void AddValidationLayer(VkDeviceCreateInfo& createInfo);
   static const bool CheckValidationLayerSupport();
-  static void AddValidationExtensions(std::vector<const char*>* extensions);
+  static void AddValidationExtensions(std::vector<const char*>& extensions);
 
-  void SetupDebugMessenger(VkInstance* instance);
+  void SetupDebugMessenger(VkInstance& instance);
 
-  void Destroy(VkInstance* instance);
+  void Destroy(VkInstance& instance);
 private:
   static VkResult CreateDebugUtilsMessengerEXT(
-    VkInstance* instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    VkInstance& instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 
-  static void DestroyDebugUtilsMessengerEXT(VkInstance* instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
+  static void DestroyDebugUtilsMessengerEXT(VkInstance& instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
   static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -30,7 +30,7 @@ private:
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData);
 
-  static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+  static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* createInfo);
 
   inline static const std::vector<const char*> kValidationLayers_ = {
     "VK_LAYER_KHRONOS_validation"

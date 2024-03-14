@@ -9,15 +9,19 @@ namespace shiny
 class CommandBuffer
 {
 public:
-	CommandBuffer(
+	CommandBuffer() {}
+	void InitCommandBuffer(
 		VkPhysicalDevice* physical_device, VkSurfaceKHR* surface,
 		VkDevice* logical_device, VkRenderPass* render_pass,
 		SwapChain* swap_chain, VkPipeline* pipeline);
 	void Destroy();
+
+	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+	VkCommandBuffer& GetCommandBuffer(uint32_t bufferIndex) { return command_buffers_[bufferIndex]; }
 private:
 	void CreateCommandPool();
 	void CreateCommandBuffer();
-	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	VkCommandPool command_pool_ = nullptr;
 	std::vector<VkCommandBuffer> command_buffers_ = std::vector<VkCommandBuffer>();

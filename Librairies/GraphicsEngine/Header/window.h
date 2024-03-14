@@ -7,9 +7,10 @@ namespace shiny
 class Window
 {
 public:
-	Window(const uint32_t width, const uint32_t height);
+	void InitWindow(const uint32_t width, const uint32_t height);
 	void Destroy();
 
+	GLFWwindow* GetWindow() { return window_; }
 private:
 	static void FramebufferResizeCallback(GLFWwindow* window, int width, int height) {
 		auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));

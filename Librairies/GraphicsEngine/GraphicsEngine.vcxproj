@@ -156,12 +156,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\command_buffer.h" />
-    <ClInclude Include="Header\frame_buffers.h" />
     <ClInclude Include="Header\graphics_engine.h" />
     <ClInclude Include="Header\graphics_pipeline.h" />
     <ClInclude Include="Header\instance.h" />
+    <ClInclude Include="Header\queue_family_indices.h" />
     <ClInclude Include="Header\surface.h" />
     <ClInclude Include="Header\swap_chain.h" />
+    <ClInclude Include="Header\swap_chain_support_details.h" />
     <ClInclude Include="Header\validation_layers.h" />
     <ClInclude Include="Header\vulkan_debug.h" />
     <ClInclude Include="Header\vulkan_device.h" />
@@ -169,7 +170,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\command_buffer.cpp" />
-    <ClCompile Include="Source\frame_buffers.cpp" />
     <ClCompile Include="Source\graphics_engine.cpp" />
     <ClCompile Include="Source\graphics_pipeline.cpp" />
     <ClCompile Include="Source\instance.cpp" />

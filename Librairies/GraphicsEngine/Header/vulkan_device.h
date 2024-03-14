@@ -7,8 +7,15 @@ namespace shiny
 class VulkanDevice
 {
 public:
-	VulkanDevice(VkInstance* instance, VkSurfaceKHR* surface);
+	VulkanDevice() {}
+	void InitVulkanDevice(VkInstance* instance, VkSurfaceKHR* surface);
 	void Destroy();
+
+	VkDevice& GetLogicalDevice() { return logical_device_; }
+	VkPhysicalDevice& GetPhysicalDevice() { return physical_device_; }
+
+	VkQueue& GetGraphicsQueue() { return graphics_queue_; }
+	VkQueue& GetPresentQueue() { return present_queue_; }
 private:
 	void PickPhysicalDevice();
 
@@ -25,7 +32,7 @@ private:
 	VkInstance* instance_ = nullptr;
 	VkSurfaceKHR* surface_ = nullptr;
 
-	VkPhysicalDevice physical_device_;
+	VkPhysicalDevice physical_device_ = nullptr;
 	VkDevice logical_device_ = nullptr;
 	VkQueue graphics_queue_ = nullptr;
 	VkQueue present_queue_ = nullptr;
