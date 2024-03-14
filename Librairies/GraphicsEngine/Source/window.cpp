@@ -17,5 +17,6 @@ Window::Window(const uint32_t width, const uint32_t height)
 void Window::Destroy()
 {
 	glfwDestroyWindow(window_);
+	glfwTerminate();
 }
 }

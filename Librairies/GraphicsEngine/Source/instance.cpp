@@ -1,9 +1,9 @@
-#if false
 #include <instance.h>
 
 #include <iostream>
 
 #include <validation_layers.h>
+#include <GLFW/glfw3.h>
 
 namespace shiny
 {
@@ -50,7 +50,19 @@ Instance::Instance()
   }
 }
 
-void Instance::Destroy() {}
+std::vector<const char*> Instance::GetRequiredExtensions() {
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions;
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+    ValidationLayers::AddValidationExtensions(&extensions);
+
+    return extensions;
+}
+
+void Instance::Destroy() {
+  vkDestroyInstance(instance_, nullptr);
 }
 }
-#endif

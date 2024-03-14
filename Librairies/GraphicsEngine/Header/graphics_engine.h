@@ -1,3 +1,4 @@
+#pragma once
 #include <graphics_pipeline.h>
 #include <frame_buffers.h>
 

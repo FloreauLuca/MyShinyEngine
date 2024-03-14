@@ -1,15 +1,15 @@
+#pragma once
+#include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
+
 namespace shiny
 {
-#include <vector>
-
-#include <vulkan/vulkan.h>
-
 class Surface
 {
 public:
-	Surface() {}
-	void Destroy() {}
+	Surface(VkInstance* instance, GLFWwindow* window);
+	void Destroy(VkInstance* instance);
 private:
-	VkSurfaceKHR surface_;
+	VkSurfaceKHR surface_ = nullptr;
 };
 }
