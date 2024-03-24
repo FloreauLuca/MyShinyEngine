@@ -47,7 +47,7 @@ namespace shiny
 
 		command_buffer_.InitCommandBuffer(&vulkan_device_.GetPhysicalDevice(), &surface_.GetSurface(), &vulkan_device_.GetLogicalDevice(), graphics_pipeline_.GetRenderPass(), &swap_chain_, graphics_pipeline_.GetGraphicsPipeline());
 
-		vertex_buffer_.InitVertexBuffer(&vulkan_device_.GetLogicalDevice(), &vulkan_device_.GetPhysicalDevice());
+		vertex_buffer_.InitVertexBuffer(&vulkan_device_.GetLogicalDevice(), &vulkan_device_.GetPhysicalDevice(), &command_buffer_.GetCommandPool(), &vulkan_device_.GetGraphicsQueue());
 
 		CreateSyncObjects();
 	}

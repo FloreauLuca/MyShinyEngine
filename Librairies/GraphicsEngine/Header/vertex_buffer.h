@@ -20,13 +20,12 @@ class VertexBuffer
 {
 public:
 	VertexBuffer() {}
-	void InitVertexBuffer(VkDevice* logical_device, VkPhysicalDevice* physical_device);
+	void InitVertexBuffer(VkDevice* logical_device, VkPhysicalDevice* physical_device, VkCommandPool* commandPool, VkQueue* graphicsQueue);
 	void Destroy();
 
 	const size_t GetVerticesSize() const { return vertices_.size(); }
 	const VkBuffer* GetVertexBuffer() const { return &vertex_buffer_; }
 private:
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	VkDevice* logical_device_ = nullptr;
 	VkPhysicalDevice* physical_device_ = nullptr;

@@ -20,6 +20,7 @@ public:
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VertexBuffer& vertexBuffer);
 
 	VkCommandBuffer& GetCommandBuffer(uint32_t bufferIndex) { return command_buffers_[bufferIndex]; }
+	VkCommandPool& GetCommandPool() { return command_pool_; }
 private:
 	void CreateCommandPool();
 	void CreateCommandBuffer();

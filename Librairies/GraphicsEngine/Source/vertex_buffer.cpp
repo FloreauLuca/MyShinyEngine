@@ -3,6 +3,8 @@
 #include <array>
 #include <stdexcept>
 
+#include <buffer.h>
+
 namespace shiny
 {
 	VkVertexInputBindingDescription Vertex::GetBindingDescription()
@@ -30,57 +32,33 @@ namespace shiny
 		return attributeDescriptions;
 	}
 
-	void VertexBuffer::InitVertexBuffer(VkDevice* logical_device, VkPhysicalDevice* physical_device)
+	void VertexBuffer::InitVertexBuffer(VkDevice* logical_device, VkPhysicalDevice* physical_device, VkCommandPool* commandPool, VkQueue* graphicsQueue)
 	{
 		logical_device_ = logical_device;
 		physical_device_ = physical_device;
 
-		VkBufferCreateInfo bufferInfo{};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = sizeof(vertices_[0]) * vertices_.size();
-		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkDeviceSize bufferSize = sizeof(vertices_[0]) * vertices_.size();
 
-		if (vkCreateBuffer(*logical_device_, &bufferInfo, nullptr, &vertex_buffer_) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create vertex buffer!");
-		}
-
-		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(*logical_device_, vertex_buffer_, &memRequirements);
-
-		VkMemoryAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-		if (vkAllocateMemory(*logical_device_, &allocInfo, nullptr, &vertex_buffer_memory_) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate vertex buffer memory!");
-		}
-
-		vkBindBufferMemory(*logical_device_, vertex_buffer_, vertex_buffer_memory_, 0);
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		Buffer::CreateBuffer(*logical_device, *physical_device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		void* data;
-		vkMapMemory(*logical_device_, vertex_buffer_memory_, 0, bufferInfo.size, 0, &data);
-		memcpy(data, vertices_.data(), (size_t)bufferInfo.size);
-		vkUnmapMemory(*logical_device_, vertex_buffer_memory_);
+		vkMapMemory(*logical_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, vertices_.data(), (size_t)bufferSize);
+		vkUnmapMemory(*logical_device, stagingBufferMemory);
+
+		Buffer::CreateBuffer(*logical_device, *physical_device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertex_buffer_, vertex_buffer_memory_);
+
+		Buffer::CopyBuffer(*logical_device, *commandPool, *graphicsQueue, stagingBuffer, vertex_buffer_, bufferSize);
+
+		vkDestroyBuffer(*logical_device, stagingBuffer, nullptr);
+		vkFreeMemory(*logical_device, stagingBufferMemory, nullptr);
 	}
 
 	void VertexBuffer::Destroy()
 	{
 		vkDestroyBuffer(*logical_device_, vertex_buffer_, nullptr);
 		vkFreeMemory(*logical_device_, vertex_buffer_memory_, nullptr);
-	}
-
-	uint32_t VertexBuffer::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
-		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(*physical_device_, &memProperties);
-
-		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-				return i;
-			}
-		}
-
-		throw std::runtime_error("failed to find suitable memory type!");
 	}
 }
