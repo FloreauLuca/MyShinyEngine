@@ -36,28 +36,64 @@ namespace shiny
 	{
 		logical_device_ = logical_device;
 		physical_device_ = physical_device;
+		command_pool_ = commandPool;
+		graphics_queue_ = graphicsQueue;
 
+		CreateVertexBuffer();
+		CreateIndexBuffer();
+	}
+
+	void VertexBuffer::CreateVertexBuffer()
+	{
 		VkDeviceSize bufferSize = sizeof(vertices_[0]) * vertices_.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		Buffer::CreateBuffer(*logical_device, *physical_device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		Buffer::CreateBuffer(*logical_device_, *physical_device_, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		void* data;
-		vkMapMemory(*logical_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		vkMapMemory(*logical_device_, stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, vertices_.data(), (size_t)bufferSize);
-		vkUnmapMemory(*logical_device, stagingBufferMemory);
+		vkUnmapMemory(*logical_device_, stagingBufferMemory);
 
-		Buffer::CreateBuffer(*logical_device, *physical_device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertex_buffer_, vertex_buffer_memory_);
+		Buffer::CreateBuffer(*logical_device_, *physical_device_, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertex_buffer_, vertex_buffer_memory_);
 
-		Buffer::CopyBuffer(*logical_device, *commandPool, *graphicsQueue, stagingBuffer, vertex_buffer_, bufferSize);
+		Buffer::CopyBuffer(*logical_device_, *command_pool_, *graphics_queue_, stagingBuffer, vertex_buffer_, bufferSize);
 
-		vkDestroyBuffer(*logical_device, stagingBuffer, nullptr);
-		vkFreeMemory(*logical_device, stagingBufferMemory, nullptr);
+		vkDestroyBuffer(*logical_device_, stagingBuffer, nullptr);
+		vkFreeMemory(*logical_device_, stagingBufferMemory, nullptr);
+	}
+
+	void VertexBuffer::CreateIndexBuffer()
+	{
+		VkDeviceSize bufferSize = sizeof(indices_[0]) * indices_.size();
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		Buffer::CreateBuffer(*logical_device_, *physical_device_, bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer, stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(*logical_device_, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices_.data(), (size_t)bufferSize);
+		vkUnmapMemory(*logical_device_, stagingBufferMemory);
+
+		Buffer::CreateBuffer(*logical_device_, *physical_device_, bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			index_buffer_, index_buffer_memory_);
+
+		Buffer::CopyBuffer(*logical_device_, *command_pool_, *graphics_queue_, stagingBuffer, index_buffer_, bufferSize);
+
+		vkDestroyBuffer(*logical_device_, stagingBuffer, nullptr);
+		vkFreeMemory(*logical_device_, stagingBufferMemory, nullptr);
 	}
 
 	void VertexBuffer::Destroy()
 	{
+		vkDestroyBuffer(*logical_device_, index_buffer_, nullptr);
+		vkFreeMemory(*logical_device_, index_buffer_memory_, nullptr);
+
 		vkDestroyBuffer(*logical_device_, vertex_buffer_, nullptr);
 		vkFreeMemory(*logical_device_, vertex_buffer_memory_, nullptr);
 	}

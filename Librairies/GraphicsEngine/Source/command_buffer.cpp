@@ -100,7 +100,9 @@ namespace shiny
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-		vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertexBuffer.GetVerticesSize()), 1, 0, 0);
+		vkCmdBindIndexBuffer(commandBuffer, *vertexBuffer.GetIndicesBuffer(), 0, VK_INDEX_TYPE_UINT16);
+
+		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vertexBuffer.GetIndicesSize()), 1, 0, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffer);
 
