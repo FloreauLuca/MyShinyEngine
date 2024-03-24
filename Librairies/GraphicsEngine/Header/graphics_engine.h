@@ -19,6 +19,7 @@
 #include <swap_chain.h>
 #include <command_buffer.h>
 #include <vertex_buffer.h>
+#include <uniform_buffer.h>
 
 namespace shiny
 {
@@ -80,5 +81,6 @@ namespace shiny
 		GraphicsPipeline graphics_pipeline_;
 		CommandBuffer command_buffer_ = CommandBuffer();
 		VertexBuffer vertex_buffer_ = VertexBuffer();
+		UniformBuffer uniform_buffer_ = UniformBuffer();
 	};
 }

@@ -54,6 +54,9 @@
     <ClInclude Include="Header\buffer.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Header\uniform_buffer.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\graphics_engine.cpp">
@@ -89,5 +92,22 @@
     <ClCompile Include="Source\buffer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="Source\uniform_buffer.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Data\shader.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="..\..\Data\shader.vert">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="..\..\Data\shader_frag.spv">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="..\..\Data\shader_vert.spv">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
   </ItemGroup>
 </Project>

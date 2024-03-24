@@ -10,11 +10,12 @@ namespace shiny
   class GraphicsPipeline
   {
   public:
-    void CreateGraphicsPipeline(VkDevice* logical_device, VkExtent2D* extent, VkFormat* format);
+    void CreateGraphicsPipeline(VkDevice* logical_device, VkDescriptorSetLayout* descriptor_set_layout, VkExtent2D* extent, VkFormat* format);
     void Cleanup();
 
     VkRenderPass* GetRenderPass() { return &render_pass_; }
     VkPipeline* GetGraphicsPipeline() { return &graphics_pipeline_; }
+    VkPipelineLayout* GetPipelineLayout() { return &pipeline_layout_; }
   private:
 
     VkShaderModule CreateShaderModule(const std::vector<char>& code);

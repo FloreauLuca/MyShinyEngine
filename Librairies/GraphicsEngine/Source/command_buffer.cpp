@@ -1,22 +1,23 @@
-
 #include <command_buffer.h>
+
 #include <stdexcept>
+
 #include <swap_chain.h>
+#include <graphics_pipeline.h>
 
 namespace shiny
 {
 	void CommandBuffer::InitCommandBuffer(
 		VkPhysicalDevice* physical_device, VkSurfaceKHR* surface,
-		VkDevice* logical_device, VkRenderPass* render_pass,
-		SwapChain* swap_chain, VkPipeline* pipeline) 
+		VkDevice* logical_device,	SwapChain* swap_chain, GraphicsPipeline* graphics_pipeline) 
 	{
 		physical_device_ = physical_device;
 		surface_ = surface;
 		logical_device_ = logical_device;
-		render_pass_ = render_pass;
+		render_pass_ = graphics_pipeline->GetRenderPass();
 		swap_chain_ = swap_chain;
-		pipeline_ = pipeline;
 		swap_chain_extent_ = &swap_chain_->GetExtent();
+		graphics_pipeline_ = graphics_pipeline;
 
 		CreateCommandPool();
 		CreateCommandBuffer();
@@ -42,7 +43,7 @@ namespace shiny
 
 	void CommandBuffer::CreateCommandBuffer()
 	{
-		command_buffers_.resize(kMaxFramesnFlight);
+		command_buffers_.resize(kMaxFramesInFlight);
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -55,7 +56,7 @@ namespace shiny
 		}
 	}
 
-	void CommandBuffer::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VertexBuffer& vertexBuffer)
+	void CommandBuffer::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VertexBuffer& vertexBuffer, VkDescriptorSet* descriptor_set)
 	{
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -80,7 +81,7 @@ namespace shiny
 
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *pipeline_);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *graphics_pipeline_->GetGraphicsPipeline());
 
 		VkViewport viewport{};
 		viewport.x = 0.0f;
@@ -101,6 +102,8 @@ namespace shiny
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
 		vkCmdBindIndexBuffer(commandBuffer, *vertexBuffer.GetIndicesBuffer(), 0, VK_INDEX_TYPE_UINT16);
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *graphics_pipeline_->GetPipelineLayout(), 0, 1, descriptor_set, 0, nullptr);
 
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vertexBuffer.GetIndicesSize()), 1, 0, 0, 0);
 

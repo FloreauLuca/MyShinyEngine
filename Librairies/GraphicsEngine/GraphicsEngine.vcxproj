@@ -160,6 +160,7 @@
     <ClInclude Include="Header\surface.h" />
     <ClInclude Include="Header\swap_chain.h" />
     <ClInclude Include="Header\swap_chain_support_details.h" />
+    <ClInclude Include="Header\uniform_buffer.h" />
     <ClInclude Include="Header\validation_layers.h" />
     <ClInclude Include="Header\vertex_buffer.h" />
     <ClInclude Include="Header\vulkan_device.h" />
@@ -173,10 +174,17 @@
     <ClCompile Include="Source\instance.cpp" />
     <ClCompile Include="Source\surface.cpp" />
     <ClCompile Include="Source\swap_chain.cpp" />
+    <ClCompile Include="Source\uniform_buffer.cpp" />
     <ClCompile Include="Source\validation_layers.cpp" />
     <ClCompile Include="Source\vertex_buffer.cpp" />
     <ClCompile Include="Source\vulkan_device.cpp" />
     <ClCompile Include="Source\window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Data\shader.frag" />
+    <None Include="..\..\Data\shader.vert" />
+    <None Include="..\..\Data\shader_frag.spv" />
+    <None Include="..\..\Data\shader_vert.spv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

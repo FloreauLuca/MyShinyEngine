@@ -40,12 +40,13 @@ namespace shiny
 
 		swap_chain_.InitSwapChain(window_.GetWindow(), &instance_.GetInstance(), &surface_.GetSurface(), &vulkan_device_.GetLogicalDevice(), &vulkan_device_.GetPhysicalDevice());
 
-		graphics_pipeline_ = GraphicsPipeline();
-		graphics_pipeline_.CreateGraphicsPipeline(&vulkan_device_.GetLogicalDevice(), &swap_chain_.GetExtent(), &swap_chain_.GetImageFormat());
+		uniform_buffer_.InitUniformBuffer(vulkan_device_.GetLogicalDevice(), vulkan_device_.GetPhysicalDevice());
+
+		graphics_pipeline_.CreateGraphicsPipeline(&vulkan_device_.GetLogicalDevice(), &uniform_buffer_.GetDescriptorSetLayout(), &swap_chain_.GetExtent(), &swap_chain_.GetImageFormat());
 
 		swap_chain_.CreateFrameBuffers(*graphics_pipeline_.GetRenderPass());
 
-		command_buffer_.InitCommandBuffer(&vulkan_device_.GetPhysicalDevice(), &surface_.GetSurface(), &vulkan_device_.GetLogicalDevice(), graphics_pipeline_.GetRenderPass(), &swap_chain_, graphics_pipeline_.GetGraphicsPipeline());
+		command_buffer_.InitCommandBuffer(&vulkan_device_.GetPhysicalDevice(), &surface_.GetSurface(), &vulkan_device_.GetLogicalDevice(), &swap_chain_, &graphics_pipeline_);
 
 		vertex_buffer_.InitVertexBuffer(&vulkan_device_.GetLogicalDevice(), &vulkan_device_.GetPhysicalDevice(), &command_buffer_.GetCommandPool(), &vulkan_device_.GetGraphicsQueue());
 
@@ -77,6 +78,8 @@ namespace shiny
 		command_buffer_.Destroy();
 
 		graphics_pipeline_.Cleanup();
+
+		uniform_buffer_.Destroy();
 
 		vulkan_device_.Destroy();
 
@@ -141,7 +144,9 @@ namespace shiny
 
 		vkResetCommandBuffer(command_buffer_.GetCommandBuffer(current_frame_), 0);
 
-		command_buffer_.RecordCommandBuffer(command_buffer_.GetCommandBuffer(current_frame_), imageIndex, vertex_buffer_);
+		uniform_buffer_.UpdateUniformBuffer(swap_chain_.GetExtent(), current_frame_);
+
+		command_buffer_.RecordCommandBuffer(command_buffer_.GetCommandBuffer(current_frame_), imageIndex, vertex_buffer_, &uniform_buffer_.GetDescriptorSet(current_frame_));
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
