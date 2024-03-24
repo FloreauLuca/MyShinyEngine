@@ -1,8 +1,13 @@
 #include <graphics_pipeline.h>
 
 #include <iostream>
+#include <array>
 
-void GraphicsPipeline::CreateGraphicsPipeline(VkDevice* logical_device, VkExtent2D* extent, VkFormat* format) {
+#include <vertex_buffer.h>
+
+namespace shiny
+{
+  void GraphicsPipeline::CreateGraphicsPipeline(VkDevice* logical_device, VkExtent2D* extent, VkFormat* format) {
     logical_device_ = logical_device;
     extent_ = extent;
     format_ = format;
@@ -31,10 +36,15 @@ void GraphicsPipeline::CreateGraphicsPipeline(VkDevice* logical_device, VkExtent
     // Vertex input
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+    auto bindingDescription = Vertex::GetBindingDescription();
+    auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -124,7 +134,7 @@ void GraphicsPipeline::CreateGraphicsPipeline(VkDevice* logical_device, VkExtent
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
     if (vkCreatePipelineLayout(*logical_device_, &pipelineLayoutInfo, nullptr, &pipeline_layout_) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create pipeline layout!");
+      throw std::runtime_error("failed to create pipeline layout!");
     }
 
     CreateRenderPass();
@@ -154,12 +164,12 @@ void GraphicsPipeline::CreateGraphicsPipeline(VkDevice* logical_device, VkExtent
     pipelineInfo.basePipelineIndex = -1; // Optional
 
     if (vkCreateGraphicsPipelines(*logical_device_, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphics_pipeline_) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create graphics pipeline!");
+      throw std::runtime_error("failed to create graphics pipeline!");
     }
-}
+  }
 
-void GraphicsPipeline::Cleanup()
-{
+  void GraphicsPipeline::Cleanup()
+  {
     vkDestroyPipeline(*logical_device_, graphics_pipeline_, nullptr);
 
     vkDestroyShaderModule(*logical_device_, vert_shader_module_, nullptr);
@@ -170,9 +180,9 @@ void GraphicsPipeline::Cleanup()
     vkDestroyRenderPass(*logical_device_, render_pass_, nullptr);
 
 
-}
+  }
 
-VkShaderModule GraphicsPipeline::CreateShaderModule(const std::vector<char>& code) {
+  VkShaderModule GraphicsPipeline::CreateShaderModule(const std::vector<char>& code) {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = code.size();
@@ -180,14 +190,14 @@ VkShaderModule GraphicsPipeline::CreateShaderModule(const std::vector<char>& cod
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(*logical_device_, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create shader module!");
+      throw std::runtime_error("failed to create shader module!");
     }
 
     return shaderModule;
-}
+  }
 
 #pragma region RenderPass
-void GraphicsPipeline::CreateRenderPass() {
+  void GraphicsPipeline::CreateRenderPass() {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = *format_;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -233,7 +243,8 @@ void GraphicsPipeline::CreateRenderPass() {
 
 
     if (vkCreateRenderPass(*logical_device_, &renderPassInfo, nullptr, &render_pass_) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create render pass!");
+      throw std::runtime_error("failed to create render pass!");
     }
-}
+  }
 #pragma endregion RenderPass
+}

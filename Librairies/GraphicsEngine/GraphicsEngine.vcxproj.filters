@@ -15,14 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Main\Data\shader.vert">
-      <Filter>Fichiers de ressources</Filter>
-    </None>
-    <None Include="..\..\Main\Data\shader.frag">
-      <Filter>Fichiers de ressources</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Header\graphics_engine.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
@@ -56,6 +48,12 @@
     <ClInclude Include="Header\swap_chain_support_details.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Header\vertex_buffer.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\buffer.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\graphics_engine.cpp">
@@ -83,6 +81,12 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Source\window.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\vertex_buffer.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\buffer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

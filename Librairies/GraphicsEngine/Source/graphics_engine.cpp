@@ -47,6 +47,8 @@ namespace shiny
 
 		command_buffer_.InitCommandBuffer(&vulkan_device_.GetPhysicalDevice(), &surface_.GetSurface(), &vulkan_device_.GetLogicalDevice(), graphics_pipeline_.GetRenderPass(), &swap_chain_, graphics_pipeline_.GetGraphicsPipeline());
 
+		vertex_buffer_.InitVertexBuffer(&vulkan_device_.GetLogicalDevice(), &vulkan_device_.GetPhysicalDevice());
+
 		CreateSyncObjects();
 	}
 
@@ -63,6 +65,8 @@ namespace shiny
 	void GraphicsEngine::Cleanup()
 	{
 		swap_chain_.Destroy();
+
+		vertex_buffer_.Destroy();
 
 		for (size_t i = 0; i < kMaxFramesnFlight; i++) {
 			vkDestroySemaphore(vulkan_device_.GetLogicalDevice(), render_finished_semaphore_[i], nullptr);
@@ -137,7 +141,7 @@ namespace shiny
 
 		vkResetCommandBuffer(command_buffer_.GetCommandBuffer(current_frame_), 0);
 
-		command_buffer_.RecordCommandBuffer(command_buffer_.GetCommandBuffer(current_frame_), imageIndex);
+		command_buffer_.RecordCommandBuffer(command_buffer_.GetCommandBuffer(current_frame_), imageIndex, vertex_buffer_);
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

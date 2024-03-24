@@ -5,15 +5,17 @@
 
 #include <vulkan/vulkan.h>
 
-class GraphicsPipeline
+namespace shiny
 {
-public:
-	void CreateGraphicsPipeline(VkDevice* logical_device, VkExtent2D* extent, VkFormat* format);
-	void Cleanup();
+  class GraphicsPipeline
+  {
+  public:
+    void CreateGraphicsPipeline(VkDevice* logical_device, VkExtent2D* extent, VkFormat* format);
+    void Cleanup();
 
     VkRenderPass* GetRenderPass() { return &render_pass_; }
     VkPipeline* GetGraphicsPipeline() { return &graphics_pipeline_; }
-private : 
+  private:
 
     VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
@@ -22,21 +24,21 @@ private :
 #pragma endregion RenderPass
 
     static std::vector<char> ReadFile(const std::string& filename) {
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
+      std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
-        if (!file.is_open()) {
-            throw std::runtime_error("failed to open file : " + filename);
-        }
+      if (!file.is_open()) {
+        throw std::runtime_error("failed to open file : " + filename);
+      }
 
-        size_t fileSize = (size_t)file.tellg();
-        std::vector<char> buffer(fileSize);
+      size_t fileSize = (size_t)file.tellg();
+      std::vector<char> buffer(fileSize);
 
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
+      file.seekg(0);
+      file.read(buffer.data(), fileSize);
 
-        file.close();
+      file.close();
 
-        return buffer;
+      return buffer;
     }
 
     VkDevice* logical_device_;
@@ -49,4 +51,5 @@ private :
     VkRenderPass render_pass_;
     VkPipeline graphics_pipeline_;
 
-};
+  };
+}

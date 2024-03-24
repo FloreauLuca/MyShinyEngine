@@ -18,6 +18,7 @@
 #include <vulkan_device.h>
 #include <swap_chain.h>
 #include <command_buffer.h>
+#include <vertex_buffer.h>
 
 namespace shiny
 {
@@ -78,5 +79,6 @@ namespace shiny
 		SwapChain swap_chain_ = SwapChain();
 		GraphicsPipeline graphics_pipeline_;
 		CommandBuffer command_buffer_ = CommandBuffer();
+		VertexBuffer vertex_buffer_ = VertexBuffer();
 	};
 }

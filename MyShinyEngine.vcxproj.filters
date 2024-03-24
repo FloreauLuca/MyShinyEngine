@@ -18,4 +18,12 @@
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\shader.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="Data\shader.vert">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+  </ItemGroup>
 </Project>

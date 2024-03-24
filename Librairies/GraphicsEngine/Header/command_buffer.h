@@ -3,6 +3,7 @@
 
 #include <vulkan/vulkan.h>
 #include <swap_chain.h>
+#include <vertex_buffer.h>
 
 namespace shiny
 {
@@ -16,7 +17,7 @@ public:
 		SwapChain* swap_chain, VkPipeline* pipeline);
 	void Destroy();
 
-	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VertexBuffer& vertexBuffer);
 
 	VkCommandBuffer& GetCommandBuffer(uint32_t bufferIndex) { return command_buffers_[bufferIndex]; }
 private:
