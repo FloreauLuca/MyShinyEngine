@@ -20,6 +20,7 @@
 #include <command_buffer.h>
 #include <vertex_buffer.h>
 #include <uniform_buffer.h>
+#include <texture_image.h>
 
 namespace shiny
 {
@@ -82,5 +83,6 @@ namespace shiny
 		CommandBuffer command_buffer_ = CommandBuffer();
 		VertexBuffer vertex_buffer_ = VertexBuffer();
 		UniformBuffer uniform_buffer_ = UniformBuffer();
+		TextureImage texture_image_ = TextureImage();
 	};
 }

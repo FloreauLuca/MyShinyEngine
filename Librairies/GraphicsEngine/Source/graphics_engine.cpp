@@ -48,6 +48,8 @@ namespace shiny
 
 		command_buffer_.InitCommandBuffer(&vulkan_device_.GetPhysicalDevice(), &surface_.GetSurface(), &vulkan_device_.GetLogicalDevice(), &swap_chain_, &graphics_pipeline_);
 
+		texture_image_.InitTextureImage(vulkan_device_.GetLogicalDevice(), vulkan_device_.GetPhysicalDevice(), command_buffer_.GetCommandPool(), vulkan_device_.GetGraphicsQueue());
+
 		vertex_buffer_.InitVertexBuffer(&vulkan_device_.GetLogicalDevice(), &vulkan_device_.GetPhysicalDevice(), &command_buffer_.GetCommandPool(), &vulkan_device_.GetGraphicsQueue());
 
 		CreateSyncObjects();
@@ -68,6 +70,8 @@ namespace shiny
 		swap_chain_.Destroy();
 
 		vertex_buffer_.Destroy();
+
+		texture_image_.Destroy();
 
 		for (size_t i = 0; i < kMaxFramesnFlight; i++) {
 			vkDestroySemaphore(vulkan_device_.GetLogicalDevice(), render_finished_semaphore_[i], nullptr);
